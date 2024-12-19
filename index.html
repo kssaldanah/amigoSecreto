@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amigo Navideño</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            margin-top: 50px;
+            background: url('https://www.toptal.com/designers/subtlepatterns/patterns/starry-night.png');
+            background-color: #d4f1f4;
+            color: #2c3e50;
+        }
+        h1 {
+            color: #e74c3c;
+            font-size: 3em;
+            text-shadow: 2px 2px 4px #000000;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 18px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.3s;
+        }
+        button:hover {
+            background-color: #218838;
+            transform: scale(1.1);
+        }
+        button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        label {
+            display: block;
+            margin-top: 20px;
+            font-size: 24px;
+            color: #34495e;
+            text-shadow: 1px 1px 2px #ffffff;
+        }
+        .container {
+            padding: 20px;
+            border: 2px solid #e74c3c;
+            border-radius: 15px;
+            background-color: #ffffffdd;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Asignador de Amigo Navideño</h1>
+        <label for="userName">¿Quién eres?</label>
+        <input type="text" id="userName" class="form-control mb-3" placeholder="Escribe tu nombre">
+        <button id="assignButton" class="btn btn-success">Mi amigo navideño</button>
+        <label id="assignedFriend"></label>
+        <button id="resetButton" class="btn btn-danger mt-3">Exportar Lista</button>
+        <input type="file" id="uploadInput" class="form-control mt-3">
+        <button id="exitButton" class="btn btn-secondary mt-3">Salir</button>
+    </div>
+
+    <script>
+        const initialNames = ["Ana", "Carlos", "Luis", "Marta", "José", "Elena", "Pedro", "Laura", "Diana", "Jorge"];
+        let remainingNames = [...initialNames];
+
+        // Descargar el archivo JSON actualizado
+        function downloadUpdatedFile(names) {
+            const updatedData = { remainingNames: names };
+            const blob = new Blob([JSON.stringify(updatedData)], { type: "application/json" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "remainingNames.json";
+            link.click();
+        }
+
+        // Cargar un archivo JSON con la lista actualizada
+        function uploadUpdatedFile(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const data = JSON.parse(e.target.result);
+                remainingNames = data.remainingNames;
+                alert("Lista actualizada cargada correctamente.");
+            };
+            reader.readAsText(file);
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const assignButton = document.getElementById("assignButton");
+            const resetButton = document.getElementById("resetButton");
+            const assignedFriendLabel = document.getElementById("assignedFriend");
+            const userNameInput = document.getElementById("userName");
+            const uploadInput = document.getElementById("uploadInput");
+            const exitButton = document.getElementById("exitButton");
+
+            assignButton.addEventListener("click", () => {
+                const userName = userNameInput.value.trim();
+                if (!userName) {
+                    assignedFriendLabel.textContent = "Por favor, escribe tu nombre.";
+                    return;
+                }
+
+                if (remainingNames.length === 0) {
+                    assignedFriendLabel.textContent = "Todos los amigos navideños han sido asignados.";
+                    return;
+                }
+
+                const randomIndex = Math.floor(Math.random() * remainingNames.length);
+                const assignedName = remainingNames[randomIndex];
+
+                assignedFriendLabel.textContent = `${userName}, tu amigo navideño es: ${assignedName}`;
+
+                remainingNames.splice(randomIndex, 1);
+                downloadUpdatedFile(remainingNames);
+            });
+
+            resetButton.addEventListener("click", () => {
+                remainingNames = [...initialNames];
+                downloadUpdatedFile(remainingNames);
+                alert("Lista reiniciada y lista para exportar.");
+            });
+
+            uploadInput.addEventListener("change", uploadUpdatedFile);
+
+            exitButton.addEventListener("click", () => {
+                window.close();
+            });
+        });
+    </script>
+</body>
+</html>
